@@ -1,0 +1,24 @@
+---
+- name: Install or refresh osv-scanner binary
+  ansible.builtin.get_url:
+    url: "{{ osv_scanner_url }}"
+    dest: "{{ osv_scanner_path }}"
+    mode: "0755"
+
+- name: Ensure offline vulnerability DB directory exists
+  ansible.builtin.file:
+    path: "{{ osv_db_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Download or refresh offline vulnerability databases (read-only)
+  ansible.builtin.command: >
+    {{ osv_scanner_path }}
+    --offline-vulnerabilities
+    --download-offline-databases {{ osv_db_dir }}
+  environment:
+    OSV_SCANNER_LOCAL_DB_CACHE_DIRECTORY: "{{ osv_db_dir }}"
+  register: osv_db_update
+  changed_when: false
+  tags:
+    - update_db

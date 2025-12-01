@@ -1,0 +1,5 @@
+---
+# Defaults for scanning Python environments and storing snapshots
+requirements_export_dir: "/srv/python-reqs"
+osv_scanner_path: "/usr/local/bin/osv-scanner"
+osv_db_dir: "/srv/osv-db"
