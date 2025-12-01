@@ -1,0 +1,45 @@
+OSV Scan Results
+================
+
+{% for res in osv_results.results %}
+{% set parsed = (res.stdout | default('{}')) | from_json %}
+{% set base = res.item.path | basename %}
+{% set host = base.split('-')[0] %}
+{% set interp = base.split('-')[1] | default('python3') %}
+{% set findings = parsed.results | default([]) %}
+### {{ host }} / {{ interp }}
+
+Snapshot: `{{ base }}`  
+Findings: {{ findings | length }}
+
+| Package | Vulnerability | Severity | Summary |
+| --- | --- | --- | --- |
+{% if findings | length == 0 %}
+| (none) | - | - | No data |
+{% endif %}
+{% for finding in findings %}
+{% set pkg_names = finding.packages | default([]) | map(attribute='package') | map(attribute='name') | list %}
+{% set vulns = finding.vulnerabilities | default([]) %}
+{% if vulns | length == 0 %}
+{% if pkg_names | length > 0 %}
+{% for pkg_name in pkg_names %}
+| {{ pkg_name }} | - | - | No vulnerabilities reported |
+{% endfor %}
+{% else %}
+| (unknown) | - | - | No vulnerabilities reported |
+{% endif %}
+{% endif %}
+{% for vuln in vulns %}
+{% set sev = (vuln.severity | map(attribute='score') | list | first) if vuln.severity is defined else '' %}
+{% set summary = vuln.summary | default('') | replace('\n', ' ') %}
+{% if pkg_names | length > 0 %}
+{% for pkg_name in pkg_names %}
+| {{ pkg_name }} | {{ vuln.id | default('') }} | {{ sev | default('') }} | {{ summary }} |
+{% endfor %}
+{% else %}
+| (unknown) | {{ vuln.id | default('') }} | {{ sev | default('') }} | {{ summary }} |
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+{% endfor %}

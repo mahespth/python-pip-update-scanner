@@ -3,3 +3,6 @@
 requirements_export_dir: "/srv/python-reqs"
 osv_scanner_path: "/usr/local/bin/osv-scanner"
 osv_db_dir: "/srv/osv-db"
+osv_report_dir: "{{ requirements_export_dir }}"
+osv_report_csv: "{{ osv_report_dir }}/osv_scan_results.csv"
+osv_report_md: "{{ osv_report_dir }}/osv_scan_results.md"
