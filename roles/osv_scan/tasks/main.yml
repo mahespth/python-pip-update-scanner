@@ -1,4 +1,5 @@
 ---
+
 - name: Ensure export directory exists on controller
   ansible.builtin.file:
     path: "{{ requirements_export_dir }}"
@@ -18,9 +19,9 @@
   ansible.builtin.set_fact:
     python_interpreters: >-
       {{ py_bins.files
-         | map(attribute='path')
-         | select('regex', 'python3(\\.[0-9]+)?$')
-         | list }}
+        | map(attribute='path')
+        | select('regex', 'python3(\\.[0-9]+)?$')
+        | list }}
 
 - name: Show discovered interpreters (for sanity)
   ansible.builtin.debug:
@@ -110,14 +111,14 @@
   vars:
     any_vulns: >-
       {{ osv_results.results
-         | selectattr('stdout', 'defined')
-         | map(attribute='stdout')
-         | map('from_json')
-         | map(attribute='results')
-         | map('length')
-         | select('>', 0)
-         | list
-         | length > 0 }}
+        | selectattr('stdout', 'defined')
+        | map(attribute='stdout')
+        | map('from_json')
+        | map(attribute='results')
+        | map('length')
+        | select('>', 0)
+        | list
+        | length > 0 }}
   ansible.builtin.fail:
     msg: "One or more Python interpreters have vulnerabilities (see debug output above)."
   when: any_vulns
@@ -126,3 +127,5 @@
   run_once: true
   tags:
     - enforce
+
+...

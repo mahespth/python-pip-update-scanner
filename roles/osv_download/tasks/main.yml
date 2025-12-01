@@ -1,4 +1,5 @@
 ---
+
 - name: Install or refresh osv-scanner binary
   ansible.builtin.get_url:
     url: "{{ osv_scanner_url }}"
@@ -22,3 +23,5 @@
   changed_when: false
   tags:
     - update_db
+
+...
