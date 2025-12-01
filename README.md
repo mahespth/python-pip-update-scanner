@@ -9,6 +9,7 @@ Structure
 - `scanner.yml`: top-level playbook orchestrating the roles.
 - `roles/osv_download`: installs `osv-scanner` and refreshes the offline DB cache.
 - `roles/osv_scan`: gathers per-interpreter `pip list` output, stores snapshots on the controller, runs `osv-scanner` offline against them, writes CSV/Markdown reports, and optionally fails if vulnerabilities are found.
+- `roles/osv_upload`: uploads generated reports to GitLab (project uploads API) or to a WebDAV endpoint.
 - `inventory`: sample inventory defining target hosts.
 
 Usage
@@ -21,3 +22,7 @@ Usage
 Outputs
 - Requirements snapshots: `requirements_export_dir` (default `/srv/python-reqs`).
 - Reports: CSV at `osv_report_csv` (default `/srv/python-reqs/osv_scan_results.csv`) and Markdown at `osv_report_md` (default `/srv/python-reqs/osv_scan_results.md`).
+
+Upload configuration (optional)
+- Enable GitLab upload: set `gitlab_upload_enabled: true`, `gitlab_upload_url` (e.g. `https://gitlab.example.com/api/v4/projects/123/uploads`), and `gitlab_private_token`.
+- Enable WebDAV upload: set `webdav_upload_enabled: true`, `webdav_base_url` (e.g. `https://webdav.example.com/reports`), and, if needed, `webdav_username`/`webdav_password` plus any `webdav_headers`.

@@ -1,0 +1,81 @@
+---
+- name: Skip upload when no destination configured
+  ansible.builtin.debug:
+    msg: "Skipping upload: neither gitlab_upload_enabled nor webdav_upload_enabled is true."
+  when: not (gitlab_upload_enabled | bool or webdav_upload_enabled | bool)
+  run_once: true
+
+- block:
+    - name: Ensure report directory exists locally
+      ansible.builtin.stat:
+        path: "{{ osv_report_dir }}"
+      register: report_dir_stat
+      run_once: true
+
+    - name: Fail if report directory is missing
+      ansible.builtin.fail:
+        msg: "Report directory {{ osv_report_dir }} does not exist; run scan role first."
+      when: not report_dir_stat.stat.exists
+      run_once: true
+
+    - name: Check report files
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      register: report_stats
+      loop: "{{ osv_reports }}"
+      loop_control:
+        label: "{{ item | basename }}"
+      run_once: true
+
+    - name: Fail if any report is missing
+      ansible.builtin.fail:
+        msg: "Report file {{ item.stat.path }} missing; run scan role first."
+      when: not item.stat.exists
+      loop: "{{ report_stats.results }}"
+      loop_control:
+        label: "{{ item.stat.path }}"
+      run_once: true
+
+    - name: Upload reports to GitLab
+      ansible.builtin.uri:
+        url: "{{ gitlab_upload_url }}"
+        method: POST
+        body_format: form-multipart
+        body:
+          file:
+            filename: "{{ item | basename }}"
+            mime_type: "{{ 'text/markdown' if item.endswith('.md') else 'text/csv' }}"
+            data: "{{ lookup('file', item, rstrip=False) }}"
+        headers:
+          PRIVATE-TOKEN: "{{ gitlab_private_token }}"
+        status_code:
+          - 200
+          - 201
+        return_content: true
+      loop: "{{ osv_reports }}"
+      loop_control:
+        label: "{{ item | basename }}"
+      register: gitlab_upload_results
+      when: gitlab_upload_enabled | bool
+      run_once: true
+
+    - name: Upload reports to WebDAV
+      ansible.builtin.uri:
+        url: "{{ webdav_base_url.rstrip('/') }}/{{ item | basename }}"
+        method: PUT
+        src: "{{ item }}"
+        force_basic_auth: true
+        url_username: "{{ webdav_username }}"
+        url_password: "{{ webdav_password }}"
+        headers: "{{ webdav_headers }}"
+        status_code:
+          - 200
+          - 201
+          - 204
+      loop: "{{ osv_reports }}"
+      loop_control:
+        label: "{{ item | basename }}"
+      register: webdav_upload_results
+      when: webdav_upload_enabled | bool
+      run_once: true
+  when: gitlab_upload_enabled | bool or webdav_upload_enabled | bool

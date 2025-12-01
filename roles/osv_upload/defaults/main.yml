@@ -1,0 +1,20 @@
+---
+# Defaults for uploading OSV scan reports
+osv_report_dir: "/srv/python-reqs"
+osv_report_csv: "{{ osv_report_dir }}/osv_scan_results.csv"
+osv_report_md: "{{ osv_report_dir }}/osv_scan_results.md"
+osv_reports:
+  - "{{ osv_report_csv }}"
+  - "{{ osv_report_md }}"
+
+# GitLab upload (via Projects Uploads API)
+gitlab_upload_enabled: false
+gitlab_upload_url: ""  # e.g. https://gitlab.example.com/api/v4/projects/123/uploads
+gitlab_private_token: ""
+
+# WebDAV upload (generic HTTP PUT)
+webdav_upload_enabled: false
+webdav_base_url: ""  # e.g. https://webdav.example.com/reports
+webdav_username: ""
+webdav_password: ""
+webdav_headers: {}

@@ -11,4 +11,10 @@
   gather_facts: false
   roles:
     - role: osv_scan
+
+- name: Upload OSV reports to GitLab or WebDAV (optional)
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - role: osv_upload
 ...
