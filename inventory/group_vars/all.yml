@@ -1,0 +1,9 @@
+#
+# -----------------------------------------------------
+
+osv_scanner_version: "v2.2.4"
+osv_scanner_url: "https://github.com/google/osv-scanner/releases/download/{{ osv_scanner_version }}/osv-scanner-linux-amd64"
+osv_scanner_path: "/usr/local/bin/osv-scanner"
+
+osv_db_dir: "/srv/osv-db"                    # where offline DB lives
+requirements_export_dir: "/srv/python-reqs"  # snapshots per host
